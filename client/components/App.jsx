@@ -1,43 +1,75 @@
 // Child Components
-/* global Task:true */
+/* global
+  Task:true
+  TaskForm:true
+  HideCompleted:true
+*/
 
 App = React.createClass({
   mixins: [ReactMeteorData],
 
-  getMeteorData() {
+  getInitialState() {
     return {
-      tasks: Tasks.find({}).fetch(),
+      userInput: '',
+      hideCompleted: false,
     };
   },
 
-  // getTasks() {
-  //   return [
-  //     { _id: 1, text: 'this is task 1.'},
-  //     { _id: 2, text: 'this is task 2.'},
-  //     { _id: 3, text: 'this is task 3.'},
-  //     { _id: 4, text: 'this is task 4.'},
-  //   ];
-  // },
+  getMeteorData() {
+    let query = {};
 
-  handleSubmit(event) {
-    event.preventDefault();
+    if (this.state.hideCompleted) {
+      query = {checked: {$ne: true}};
+    }
 
-    // find text via Reactive Ref
-    const inputEl = React.findDOMNode(this.refs.textInput);
+    return {
+      tasks: Tasks.find(query, {sort: {createdAt: -1}}).fetch(),
+    };
+  },
 
+  onUserInput(str) {
+    this.setState({
+      userInput: str,
+    });
+  },
+
+  addTodo(todoText) {
     Tasks.insert({
-      text: inputEl.value.trim(),
+      text: todoText,
       createdAt: new Date(),
     });
 
-    // Clear form
-    inputEl.value = '';
+    // reset form
+    this.setState({ userInput: '' });
+  },
+
+  toggle(todo) {
+    Tasks.update(todo._id, {
+      $set: {
+        checked: !todo.checked,
+      },
+    });
+  },
+
+  remove(todo) {
+    Tasks.remove(todo._id);
+  },
+
+  toggleHideCompleted() {
+    this.setState({
+      hideCompleted: !this.state.hideCompleted,
+    });
   },
 
   renderTasks() {
     return this.data.tasks.map((task) => {
       return (
-        <Task key={task._id} task={task} />
+        <Task
+          key={task._id}
+          task={task}
+          onToggle={this.toggle}
+          onRemove={this.remove}
+        />
       );
     });
   },
@@ -47,15 +79,15 @@ App = React.createClass({
       <div className="container">
         <header>
           <h1>To Do List</h1>
-
-          <form className="new-task" onSubmit={this.handleSubmit} >
-            <input
-              ref="textInput"
-              type="text"
-              placeholder="Type to add new tasks"
-            />
-          </form>
-
+          <HideCompleted
+            hideCompleted={this.state.hideCompleted}
+            onToggle={this.toggleHideCompleted}
+          />
+          <TaskForm
+            userInput={this.state.userInput}
+            onEdit={this.onUserInput}
+            onSave={this.addTodo}
+          />
         </header>
         <ul className="tasks">
           { this.renderTasks() }
