@@ -29,7 +29,7 @@ Task = React.createClass({
           type="checkbox"
           readOnly={true}
           checked={this.props.task.checked}
-          onClick={this.toggleChecked}
+          onChange={this.toggleChecked}
         />
 
         <span className="text">
