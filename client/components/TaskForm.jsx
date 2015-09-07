@@ -1,15 +1,5 @@
 NewTaskForm = React.createClass({
 
-  propTypes: {
-    show: React.PropTypes.bool,
-  },
-
-  getDefaultProps() {
-    return {
-      show: true,
-    };
-  },
-
   getInitialState() {
     return {
       userInput: '',

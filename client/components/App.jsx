@@ -60,6 +60,13 @@ App = React.createClass({
     });
   },
 
+  renderNewTaskForm() {
+    if (! this.isLoggedIn()) {
+      return '';
+    }
+    return <NewTaskForm  />;
+  },
+
   renderTasks() {
     return this.data.tasks.map((task) => {
       return (
@@ -82,7 +89,7 @@ App = React.createClass({
             onToggle={this.toggleHideCompleted}
           />
           <AccountsUI />
-          <NewTaskForm show={this.isLoggedIn()} />
+          { this.renderNewTaskForm() }
         </header>
 
         <ul className="tasks">
