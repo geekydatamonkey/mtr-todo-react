@@ -19,14 +19,15 @@ TaskForm = React.createClass({
 
   render() {
     return (
-      <form className="new-task" onSubmit={this.handleSubmit} >
+      <form
+        className="new-task"
+        onSubmit={this.handleSubmit} >
         <input
           ref="textInput"
           type="text"
           placeholder="Type to add new tasks"
           value={this.props.userInput}
-          onChange={this.handleChange}
-        />
+          onChange={this.handleChange} />
       </form>
     );
   },

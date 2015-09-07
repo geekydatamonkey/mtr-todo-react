@@ -110,6 +110,20 @@ header .hide-completed {
   margin-left: 5px;
 }
 
+.task-owner {
+  display: inline-block;
+  width: 10em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 2em;
+  text-transform: uppercase;
+  font-size: 0.75em;
+  color: #ccc;
+}
+li.checked .task-owner {
+  text-decoration: line-through;
+}
+
 @media (max-width: 600px) {
   li {
     padding: 12px 15px;
