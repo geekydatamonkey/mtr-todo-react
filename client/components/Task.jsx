@@ -1,18 +1,29 @@
+/* global TaskOwner:true */
+
 Task = React.createClass({
 
   propTypes: {
     task: React.PropTypes.object.isRequired,
-    onToggle: React.PropTypes.func.isRequired,
-    onRemove: React.PropTypes.func.isRequired,
     loggedIn: React.PropTypes.bool,
   },
 
   deleteThisTask() {
-    this.props.onRemove(this.props.task);
+    Meteor.call('removeTask', this.props.task._id);
   },
 
   toggleChecked() {
-    this.props.onToggle(this.props.task);
+    // this.props.onToggleChecked(this.props.task);
+    Meteor.call('setChecked',
+      this.props.task._id,
+      !this.props.task.checked
+    );
+  },
+
+  togglePrivate() {
+    Meteor.call('setPrivate',
+      this.props.task._id,
+      !this.props.task.private
+    );
   },
 
   getClassName() {
@@ -22,7 +33,7 @@ Task = React.createClass({
   renderCheckbox() {
     // only show if logged in
     if (!this.props.loggedIn) {
-      return;
+      return '';
     }
 
     return (
@@ -37,7 +48,7 @@ Task = React.createClass({
 
   renderDeleteButton() {
     if (!this.props.loggedIn) {
-      return;
+      return '';
     }
 
     return (
@@ -47,11 +58,26 @@ Task = React.createClass({
     );
   },
 
+  renderPrivateButton() {
+    if (!this.props.loggedIn) {
+      return '';
+    }
+
+    const buttonText = this.props.task.private ? 'Private' : 'Public';
+
+    return (
+      <button className="toggle-private" onClick={this.togglePrivate} >
+        {buttonText}
+      </button>
+    );
+  },
+
   render() {
     return (
       <li className={ this.getClassName() }>
         { this.renderDeleteButton() }
         { this.renderCheckbox() }
+        { this.renderPrivateButton() }
         <span className="text">
           <TaskOwner task={this.props.task} />
           { this.props.task.text }

@@ -1,7 +1,7 @@
 // Child Components
 /* global
   Task:true
-  TaskForm:true
+  NewTaskForm:true
   HideCompleted:true
   AccountsUI:true
 */
@@ -11,7 +11,6 @@ App = React.createClass({
 
   getInitialState() {
     return {
-      userInput: '',
       hideCompleted: false,
     };
   },
@@ -40,47 +39,19 @@ App = React.createClass({
     return !!this.data.currentUser;
   },
 
-  onUserInput(str) {
-    this.setState({
-      userInput: str,
-    });
-  },
-
-  addTodo(todoText) {
-    if (!this.isLoggedIn()) {
-      console.error('Cannot add task if you are not logged in');
-      return;
-    }
-
-    Tasks.insert({
-      text: todoText,
-      createdAt: new Date(),
-      owner: Meteor.userId(),
-      username: Meteor.user().username,
-    });
+  add(todoText) {
+    Meteor.call('addTask', todoText);
 
     // reset form
     this.setState({ userInput: '' });
   },
 
   toggle(todo) {
-    if (!this.isLoggedIn()) {
-      return;
-    }
-
-    Tasks.update(todo._id, {
-      $set: {
-        checked: !todo.checked,
-      },
-    });
+    Meteor.call('setChecked', todo._id, !todo.checked);
   },
 
   remove(todo) {
-    if (!this.isLoggedIn()) {
-      return;
-    }
-
-    Tasks.remove(todo._id);
+    Meteor.call('removeTask', todo._id);
   },
 
   toggleHideCompleted() {
@@ -95,25 +66,10 @@ App = React.createClass({
         <Task
           key={task._id}
           task={task}
-          onToggle={this.toggle}
-          onRemove={this.remove}
           loggedIn={ this.isLoggedIn() }
         />
       );
     });
-  },
-
-  renderTaskForm() {
-    // only show task form if logged in
-    if (this.isLoggedIn()) {
-      return (
-        <TaskForm
-            userInput={this.state.userInput}
-            onEdit={this.onUserInput}
-            onSave={this.addTodo}
-          />
-      );
-    }
   },
 
   render() {
@@ -126,7 +82,7 @@ App = React.createClass({
             onToggle={this.toggleHideCompleted}
           />
           <AccountsUI />
-          { this.renderTaskForm() }
+          <NewTaskForm show={this.isLoggedIn()} />
         </header>
 
         <ul className="tasks">

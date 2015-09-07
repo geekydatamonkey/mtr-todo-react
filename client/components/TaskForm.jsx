@@ -1,20 +1,37 @@
-TaskForm = React.createClass({
+NewTaskForm = React.createClass({
 
   propTypes: {
-    userInput: React.PropTypes.string.isRequired,
-    onSave: React.PropTypes.func.isRequired,
-    onEdit: React.PropTypes.func.isRequired,
+    show: React.PropTypes.bool,
+  },
+
+  getDefaultProps() {
+    return {
+      show: true,
+    };
+  },
+
+  getInitialState() {
+    return {
+      userInput: '',
+    };
   },
 
   handleChange(event) {
-    this.props.onEdit(event.target.value);
+    this.setState({
+      userInput: event.target.value,
+    });
   },
 
   handleSubmit(event) {
     event.preventDefault();
-    const text = React.findDOMNode(this.refs.textInput).value.trim();
+    const text = this.state.userInput.trim();
 
-    this.props.onSave(text);
+    Meteor.call('addTask', text);
+
+    // reset form
+    this.setState({
+      userInput: '',
+    });
   },
 
   render() {
@@ -23,10 +40,9 @@ TaskForm = React.createClass({
         className="new-task"
         onSubmit={this.handleSubmit} >
         <input
-          ref="textInput"
           type="text"
           placeholder="Type to add new tasks"
-          value={this.props.userInput}
+          value={this.state.userInput}
           onChange={this.handleChange} />
       </form>
     );
